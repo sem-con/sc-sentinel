@@ -8,8 +8,8 @@ module DataAccessHelper
     		request_string = request.query_string
     		lat = CGI::parse(request_string)["lat"].first.to_f rescue nil
     		long = CGI::parse(request_string)["long"].first.to_f rescue nil
-			start_date = Date.parse(CGI::parse(request_string)["start"].first) rescue Time.now.to_date
-			end_date = Date.parse(CGI::parse(request_string)["end"].first) rescue Time.now.to_date-14.days
+			start_date = Date.parse(CGI::parse(request_string)["start"].first) rescue Time.now.to_date-14.days
+			end_date = Date.parse(CGI::parse(request_string)["end"].first) rescue Time.now.to_date
 
 			normalized_request = "lat=" + lat.to_s
 			normalized_request += "&long=" + long.to_s

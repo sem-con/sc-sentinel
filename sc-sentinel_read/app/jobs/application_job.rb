@@ -18,8 +18,6 @@ class ApplicationJob < ActiveJob::Base
 			if lat.nil? or long.nil? or start_date.nil? or end_date.nil?
 				@ap.update_attributes(status: -2)
 			else
-				lat = 47.6089
-				long = 13.78267
 				cmd = "python script/eomex_dl.py -c " + lat.to_s + " " + long.to_s + " -begin " + start_date.to_s + " -end " + end_date.to_s + " -o /data/" + rid.to_s + " -skipifexist"
 				if system(cmd)
 					generateHash = "cd /data/" + rid.to_s + " && find . -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum | head -c 64"

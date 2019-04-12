@@ -4,5 +4,5 @@ python script/eomex_dl.py -c 47.6089 13.78267 -begin 2018-07-01 -end 2018-07-06 
 
 # test parameters
 
-docker run -p 4000:3000 -d --name sentinel_read -v /Users/christoph/tmp:/data semcon/sc-sentinel_read /bin/init.sh "$(< test/init.trig)"
+docker run -p 4000:3000 -d --name sentinel_read -v /Users/christoph/tmp:/data semcon/sc-sentinel_read script/init.sh "$(< test/init.trig)"
 curl "http://localhost:4000/api/data?lat=48.21&long=16.37"
