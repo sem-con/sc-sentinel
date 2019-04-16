@@ -105,7 +105,7 @@ if __name__=="__main__":
 	prefix = '/eodc/products'
 	for item in tj["filelist"]:
 		tmp = item.split('/')
-		sdir = "{}{}{}".format(tmp[5],tmp[6],tmp[7]) # YYYYMMDD
+		# sdir = "{}{}{}".format(tmp[5],tmp[6],tmp[7]) # YYYYMMDD
 		l1fn = tmp[8]
 		base, _ = path.splitext(l1fn)
 		l1dir = base + ".SAFE"
@@ -115,24 +115,25 @@ if __name__=="__main__":
 		#print(l2dir)
 		#print(sdir)
 		# download into separate dir based on date
-		if not os.path.exists(sdir):
-			os.mkdir(sdir)
-		os.chdir(sdir)
-		print("downloading {} into {}".format(l1fn, os.path.join(base_dir,sdir)))
+		# if not os.path.exists(sdir):
+		# 	os.mkdir(sdir)
+		# os.chdir(sdir)
+		print("downloading {} into {}".format(l1fn, base_dir)) #os.path.join(base_dir,sdir)))
 		if not args.debug:
 			# download the file
-			if not path.exists(path.join(base_dir, sdir, l1fn)) or not args.skipifexist:
+			# if not path.exists(path.join(base_dir, sdir, l1fn)) or not args.skipifexist:
+			if not path.exists(path.join(base_dir, l1fn)) or not args.skipifexist:
 				os.system("curl -L -O -C - ftp://galaxy.eodc.eu{}".format(item[len(prefix):]))
 				#print("curl -L -O -C - ftp://galaxy.eodc.eu{}".format(item[len(prefix):]))
 			else:
 				print("download skipped. file already exists")
 			
 			# extract the zip file
-			if not (path.exists(path.join(base_dir, sdir, l1dir)) and args.skipifexist):
-				os.system("unzip {}".format(l1fn))
-				#print("unzip {}".format(l1fn))
-			else:
-				print("unzip skipped. target directory already exists")
+			# if not (path.exists(path.join(base_dir, sdir, l1dir)) and args.skipifexist):
+			# 	os.system("unzip {}".format(l1fn))
+			# 	#print("unzip {}".format(l1fn))
+			# else:
+			# 	print("unzip skipped. target directory already exists")
 		
 		# return to outputdir
-		os.chdir(base_dir)
+		# os.chdir(base_dir)

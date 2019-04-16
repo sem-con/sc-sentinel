@@ -1,6 +1,6 @@
 # test on commandline
 docker run -it --rm -v /Users/christoph/tmp:/data semcon/sc-sentinel_read bash
-python script/eomex_dl.py -c 47.6089 13.78267 -begin 2018-07-01 -end 2018-07-06 -o /data -skipifexist
+python script/eomex_download.py -c 47.6089 13.78267 -begin 2018-07-01 -end 2018-07-06 -o /data -skipifexist
 
 # test parameters
 
