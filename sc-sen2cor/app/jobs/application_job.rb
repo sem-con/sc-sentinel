@@ -30,7 +30,7 @@ class ApplicationJob < ActiveJob::Base
                 my_hash = item["hash"]
 
                 # check if hash value is valid
-                cmd = "sha256sum /data/sentinel_read/" + my_file.to_s + " | head -c 64"
+                cmd = "sha256sum /data/" + dir.to_s + "/" + my_file.to_s + " | head -c 64"
                 current_hash = `#{cmd}`
                 if current_hash != my_hash
                     error_list += [{"file": my_file, "error": "hash does not match"}]
@@ -43,7 +43,7 @@ class ApplicationJob < ActiveJob::Base
                     error_list += [{"file": my_file, "error": "failed to create tmp directory"}]
                     next
                 end
-                if !system("unzip /data/sentinel_read/" + my_file.to_s + " -d /data/sen2cor/" + tmp_uuid)
+                if !system("unzip /data/" + dir.to_s + "/" + my_file.to_s + " -d /data/sen2cor/" + tmp_uuid)
                     error_list += [{"file": my_file, "error": "failed to unzip file"}]
                     next
                 end
@@ -57,7 +57,7 @@ class ApplicationJob < ActiveJob::Base
                 # copy TCI to /data/sen2cor folder
                 new_file = `ls /data/sen2cor/#{tmp_uuid}/S2A_MSIL2A*/GRANULE/*/IMG_DATA/R60m/*TCI*.jp2 | xargs -n 1 basename`.strip
                 if new_file.to_s == ""
-                    error_list += [{"file": my_file, "error": "failed to get new TCI"}]
+                    error_list += [{"file": new_file.to_s, "error": "failed to get new TCI"}]
                     next
                 end
                 if !system("cp /data/sen2cor/" + tmp_uuid + "/S2A_MSIL2A*/GRANULE/*/IMG_DATA/R60m/*TCI*.jp2 /data/sen2cor/")
@@ -67,7 +67,7 @@ class ApplicationJob < ActiveJob::Base
 
                 # delete tmp-uuid
                 if !system("rm -rf /data/sen2cor/" + tmp_uuid)
-                    error_list += [{"file": my_file, "error": "failed to delete tmp directory"}]
+                    error_list += [{"directory": tmp_uuid, "error": "failed to delete tmp directory"}]
                     next
                 end
 
@@ -75,12 +75,12 @@ class ApplicationJob < ActiveJob::Base
                 cmd = "sha256sum /data/sen2cor/" + new_file.to_s + " | head -c 64"
                 new_hash = `#{cmd}`
                 if new_hash.to_s == ""
-                    error_list += [{"file": my_file, "error": "failed to create hash from TCI"}]
+                    error_list += [{"file": new_file.to_s, "error": "failed to create hash from TCI"}]
                     next
                 end
 
                 # write into Store
-                @my_store = Store.new(item: {"file": my_file, "hash": new_hash.to_s}.to_json, prov_id: prov_id)
+                @my_store = Store.new(item: {"file": new_file.to_s, "hash": new_hash.to_s}.to_json, prov_id: prov_id)
                 @my_store.save
             end
             if error_list.count > 0

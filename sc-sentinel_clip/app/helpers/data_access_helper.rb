@@ -19,7 +19,7 @@ module DataAccessHelper
         # check if request ID is present
         if params["rid"].nil?
             # just return all files
-            retVal = [{"type": "files", "directory": "sen2cor"}.to_json]
+            retVal = [{"type": "files", "directory": "sentinel_clip"}.to_json]
             retVal += Store.pluck(:item).map{|x| JSON(x).to_json}
             return retVal
         else

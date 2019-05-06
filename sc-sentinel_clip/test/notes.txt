@@ -1,13 +1,21 @@
 # test on commandline
-docker run -it --rm -v /Users/christoph/tmp:/data semcon/sc-sen2cor bash
+docker run -it --rm -v /Users/christoph/tmp:/data semcon/sc-sentinel_clip bash
+python script/clip.py -center 48.21 16.37 -infile /data/sen2cor/T33UWP_20190418T095031_TCI_60m.jp2 -outdir /data/sentinel_clip
 
 # command to test pipeline
 docker run -p 4000:3000 -d --name sentinel_read -v /Users/christoph/tmp:/data semcon/sc-sentinel_read /bin/init.sh "$(< /Users/christoph/semcon/usecases/sc-sentinel/sc-sentinel_read/test/init.trig)"
 docker run -p 4001:3000 -d --name sen2cor -v /Users/christoph/tmp:/data semcon/sc-sen2cor /bin/init.sh "$(< /Users/christoph/semcon/usecases/sc-sentinel/sc-sen2cor/test/init.trig)"
 
-curl -s "http://localhost:4000/api/data?lat=48.21&long=16.37&start=2018-07-05&end=2018-07-05&fid=1b303d00-b8ce-474b-8c49-dbfcab6726ae" | curl -H "Content-Type: application/json" -d "$(cat -)" -X POST http://localhost:4001/api/data?resolution=60
+docker run -p 4002:3000 -d --name sentinel_clip -v /Users/christoph/tmp:/data semcon/sc-sentinel_clip /bin/init.sh "$(< /Users/christoph/semcon/usecases/sc-sentinel/sc-sentinel_clip/test/init.trig)"
 
+
+curl -s "http://localhost:4000/api/data/plain?lat=48.21&long=16.37&start=2018-07-05&end=2018-07-05" | jq
 curl -s http://localhost:4000/api/data/plain | curl -H "Content-Type: application/json" -d "$(cat -)" -X POST http://localhost:4001/api/data?resolution=60
+
+curl -s http://localhost:4001/api/data/plain | curl -H "Content-Type: application/json" -d "$(cat -)" -X POST http://localhost:4002/api/data
+
+
+
 
 # for ZAMG
 docker rm -f sentinel_read

@@ -58,24 +58,6 @@ module DataAccessHelper
     	else
     		rid = params["rid"].to_s
             getData_response(rid)
-
-    		@ap = AsyncProcess.find_by_rid(rid)
-    		if @ap.nil?
-    			[]
-    		else
-	    		case @ap.status
-	    		when 2
-	    			# puts "job finished"
-                    retVal = [{"type": "files", "directory": "sentinel_read"}.to_json]
-                    JSON.parse(@ap.file_list).each do |my_file|
-                        my_hash = `sha256sum /data/sentinel_read/#{my_file} | head -c 64`
-                        retVal += [{"file": my_file, "hash": my_hash.to_s}.to_json]
-                    end
-                    retVal
-	    		else
-	    			[{ "rid": rid, "status": @ap.status, "file-list": JSON.parse(@ap.file_list) }.to_json]
-	    		end
-    		end
     	end
     end
 
@@ -86,7 +68,11 @@ module DataAccessHelper
             message = "unknown Requesst ID"
         else
             status = @ap.status
-            file_list = JSON.parse(@ap.file_list)
+            if @ap.file_list.to_s == ""
+                file_list = []
+            else
+                file_list = JSON.parse(@ap.file_list)
+            end
             request_string = @ap.request
             case status
             when 1
@@ -97,6 +83,7 @@ module DataAccessHelper
                         "rid": rid,
                         "status": 2,
                         "message": "request successfully finished",
+                        "request": request_string,
                         "file-list": file_list }.to_json,
                     {
                         "type": "files", 
@@ -107,12 +94,13 @@ module DataAccessHelper
                         retVal += [{"file": my_file, "hash": my_hash.to_s}.to_json]
                     end
                 end
-                retVal
+                return retVal
             when -2
                 retVal = [
                     { "rid": rid,
                       "status": -2,
                       "message": "request terminated with error",
+                      "request": request_string,
                       "file-list": file_list
                   }.to_json]
                 return retVal
