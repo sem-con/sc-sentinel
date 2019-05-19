@@ -55,12 +55,12 @@ class ApplicationJob < ActiveJob::Base
                 end
 
                 # copy TCI to /data/sen2cor folder
-                new_file = `ls /data/sen2cor/#{tmp_uuid}/S2A_MSIL2A*/GRANULE/*/IMG_DATA/R60m/*TCI*.jp2 | xargs -n 1 basename`.strip
+                new_file = `ls /data/sen2cor/#{tmp_uuid}/S2A_MSIL2A*/GRANULE/*/IMG_DATA/R#{res.to_s}m/*TCI*.jp2 | xargs -n 1 basename`.strip
                 if new_file.to_s == ""
                     error_list += [{"file": new_file.to_s, "error": "failed to get new TCI"}]
                     next
                 end
-                if !system("cp /data/sen2cor/" + tmp_uuid + "/S2A_MSIL2A*/GRANULE/*/IMG_DATA/R60m/*TCI*.jp2 /data/sen2cor/")
+                if !system("cp /data/sen2cor/" + tmp_uuid + "/S2A_MSIL2A*/GRANULE/*/IMG_DATA/R" + res.to_s + "m/*TCI*.jp2 /data/sen2cor/")
                     error_list += [{"file": my_file, "error": "failed to copy TCI"}]
                     next
                 end

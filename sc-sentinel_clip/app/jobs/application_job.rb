@@ -43,14 +43,12 @@ class ApplicationJob < ActiveJob::Base
                 clip_cmd += " -center " + lat.to_f.to_s + " " + long.to_f.to_s
                 clip_cmd += " -infile /data/" + dir.to_s + "/" + my_file
                 clip_cmd += " -outdir /data/sentinel_clip"
-puts "CMD: " + clip_cmd.to_s
                 if !system(clip_cmd)
                     error_list += [{"file": my_file, "error": "failed to clip image '" + my_file + "'"}]
                     next
                 end
 
                 new_file = my_file[0..-5] + ".png"
-puts "NEW: " + new_file.to_s
 
                 # create hash of clipped image
                 cmd = "sha256sum /data/sentinel_clip/" + new_file.to_s + " | head -c 64"
