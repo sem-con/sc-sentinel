@@ -115,8 +115,18 @@ $ wget https://vownyourdata.zamg.ac.at:9702/api/download/T33UWP_20190501T100031_
 This section shows examples on using this Semantic Container processing pipeline.    
 
 ### Images    
+The Sentinel Semantic Container processing pipeline was used to generate a time-laps video of Bad Aussee ([the center of Austria](https://de.wikipedia.org/wiki/Mittelpunkt_%C3%96sterreichs)) and is available on YouTube: https://youtu.be/N5fz6TRem1w    
+<img src="https://github.com/sem-con/sc-sentinel/raw/master/sample/T33TVN_20180906T101021_TCI_10m.png" height="250" alt="Bad Aussee Satellite Image">    
+The source high resolution images are [available here](https://github.com/sem-con/sc-sentinel/tree/master/sample).
 
-#### Provenance Chain    
+### Provenance Chain    
+Semantic Container automatically generate a provenance chain along the process pipeline when an image is created from the Sentinel source data, processed by the Sentinel-2 toolbox, and finally clipped to the relevant area. The following command generates the provenance information using the [PROV Ontology](https://www.w3.org/TR/prov-o/):
+```
+$ curl -s "https://vownyourdata.zamg.ac.at:9702/api/data?file=201905" | \ 
+      jq .provision | jq .provenance | ruby -e "puts $(</dev/stdin)"
+```    
+The output above can be visualized online with [PROV-O-Viz](http://provoviz.org/).
+
 
 ## Improve these Semantic Containers    
 
@@ -135,5 +145,4 @@ If you want to develop yourself, follow these steps:
 ## Lizenz
 
 [MIT Lizenz 2019 - OwnYourData.eu](https://raw.githubusercontent.com/sem-con/sc-sentinel/master/LICENSE)
-
 
