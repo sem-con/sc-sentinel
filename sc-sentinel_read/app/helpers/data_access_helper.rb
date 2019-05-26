@@ -9,56 +9,71 @@ module DataAccessHelper
 # -2: request terminated with error (set in application_job.rb)
 # -3: missing attributes in request (set in application_job.rb)
     def getData(params)
-    	require 'securerandom'
+        require 'securerandom'
 
-    	# check if request ID is present
-    	if params["rid"].nil?
-    		# check if request was sent before
-    		request_string = request.query_string
+        # check if request ID is present
+        if params["rid"].nil?
+            # check if request was sent before
+            request_string = request.query_string
             if request_string == ""
                 # just return all downloads
                 retVal = [{"type": "files", "directory": "sentinel_read"}.to_json]
                 retVal += Store.pluck(:item).map{|x| JSON(x).to_json}
                 retVal
             else
-        		lat = CGI::parse(request_string)["lat"].first.to_f rescue nil
-        		long = CGI::parse(request_string)["long"].first.to_f rescue nil
-    			start_date = Date.parse(CGI::parse(request_string)["start"].first) rescue Time.now.to_date-14.days
-    			end_date = Date.parse(CGI::parse(request_string)["end"].first) rescue Time.now.to_date
+                file_query = CGI::parse(request_string)["file"].first.to_s rescue nil
+                if file_query.to_s != ""
+                    # return matching files in Store
+                    retVal = [{"type": "files", "directory": "sentinel_read"}.to_json]
+                    Store.pluck(:item).each do |item|
+                        if !(JSON(item)["file"].to_s =~ /#{file_query}/).nil?
+                            retVal += JSON(item).to_json
+                        end
+                    end
+                    retVal
 
-    			normalized_request = "lat=" + lat.to_s
-    			normalized_request += "&long=" + long.to_s
-    			normalized_request += "&start=" + start_date.to_s
-    			normalized_request += "&end=" + end_date.to_s
+                else
+                    lat = CGI::parse(request_string)["lat"].first.to_f rescue nil
+                    long = CGI::parse(request_string)["long"].first.to_f rescue nil
+                    start_date = Date.parse(CGI::parse(request_string)["start"].first) rescue Time.now.to_date-14.days
+                    end_date = Date.parse(CGI::parse(request_string)["end"].first) rescue Time.now.to_date
+                    filter = CGI::parse(request_string)["filter"].first.to_s rescue ""
 
-        		@ap = AsyncProcess.find_by_request(normalized_request)
-        		if @ap.nil?
-        			# write new entry to table
-        			if params["fid"].nil?
-        				rid = SecureRandom.uuid
-        			else
-        				rid = params["fid"].to_s
-        			end
-        			@ap = AsyncProcess.new(
-        				request: normalized_request,
-        				rid: rid,
-        				status: 0) # status 0 - job initialized
-        			@ap.save
+                    normalized_request = "lat=" + lat.to_s
+                    normalized_request += "&long=" + long.to_s
+                    normalized_request += "&start=" + start_date.to_s
+                    normalized_request += "&end=" + end_date.to_s
+                    normalized_request += "&filter=" + filter.to_s
 
-        			# setup job
-        			ApplicationJob.perform_later rid
+                    @ap = AsyncProcess.find_by_request(normalized_request)
+                    if @ap.nil?
+                        # write new entry to table
+                        if params["fid"].nil?
+                            rid = SecureRandom.uuid
+                        else
+                            rid = params["fid"].to_s
+                        end
+                        @ap = AsyncProcess.new(
+                            request: normalized_request,
+                            rid: rid,
+                            status: 0) # status 0 - job initialized
+                        @ap.save
 
-        			# return Request ID
-                    [{ "rid": rid, "status": 0, "message": "request created", "request": normalized_request }.to_json]
-        		else
-            		rid = @ap.rid
-                    getData_response(rid)
+                        # setup job
+                        ApplicationJob.perform_later rid
+
+                        # return Request ID
+                        [{ "rid": rid, "status": 0, "message": "request created", "request": normalized_request }.to_json]
+                    else
+                        rid = @ap.rid
+                        getData_response(rid)
+                    end
                 end
             end
-    	else
-    		rid = params["rid"].to_s
+        else
+            rid = params["rid"].to_s
             getData_response(rid)
-    	end
+        end
     end
 
     def getData_response(rid)
