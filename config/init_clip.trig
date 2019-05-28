@@ -24,9 +24,9 @@
 
   :ContainerConfigurationInstance rdf:type :ContainerConfiguration ;
     # generic - dublin core
-    dc:title "Sentinel Atmospheric Corrections" ;
+    dc:title "Satellite Image Clipping" ;
     dc:description """
-        This container performs atmospheric corrections for Sentinel data.
+        This container crops a satellite image.
       """ ;
     dc:creator [
       rdf:type foaf:Person ;

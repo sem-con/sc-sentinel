@@ -132,12 +132,92 @@ The Sentinel Semantic Container processing pipeline was used to generate a time-
 The source high resolution images are [available here](https://github.com/sem-con/sc-sentinel/tree/master/sample).
 
 ### Provenance Chain    
-Semantic Container automatically generate a provenance chain along the process pipeline when an image is created from the Sentinel source data, processed by the Sentinel-2 toolbox, and finally clipped to the relevant area. The following command generates the provenance information using the [PROV Ontology](https://www.w3.org/TR/prov-o/):
+Semantic Container automatically generate a provenance chain along the process pipeline when an image is created from the Sentinel source data, processed by the Sentinel-2 toolbox, and finally clipped to the relevant area. The following command generates the provenance information based on the [PROV Ontology](https://www.w3.org/TR/prov-o/):
 ```
 $ curl -s "https://vownyourdata.zamg.ac.at:9702/api/data?file=201905" | \ 
       jq '.provision.provenance' | ruby -e "puts $(</dev/stdin)"
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix void: <http://rdfs.org/ns/void#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix sc: <http://w3id.org/semcon/ns/ontology#> .
+@prefix scr: <http://w3id.org/semcon/resource/> .
+
+scr:data_c276b22776c4_ffd27e87 a prov:Entity;
+    sc:dataHash "c276b22776c4c68880840a07f828a977be6cdc735626b5325ae91d5b58c9da79"^^xsd:string;
+    rdfs:label "data set from 2019-05-28T17:26:14Z"^^xsd:string;
+    prov:wasAttributedTo scr:container_ffd27e87-d03e;
+    prov:generatedAtTime "2019-05-28T17:26:14Z"^^xsd:dateTime;
+.
+
+scr:container_ffd27e87-d03e a prov:softwareAgent;
+    sc:containerInstanceId "ffd27e87-d03e-4e19-9e7b-265c040e7c05"^^xsd:string;
+    rdfs:label "Satellite Image Clipping"^^xsd:string;
+    rdfs:comment "This container crops a satellite image."^^xsd:string;
+    prov:actedOnBehalfOf scr:operator_a130a813440e;
+.
+
+scr:operator_a130a813440e a foaf:Person, prov:Person;
+    sc:operatorHash "a130a813440e6fc01bd174e333ac2ade366372cbd09f6d460ac96c5d1eccf641"^^xsd:string;
+    foaf:name "Christoph Fabianek";
+    foaf:mbox <mailto:christoph@ownyourdata.eu>;
+.
+
+scr:input_fadb1e65aaa0 a prov:Activity;
+    sc:inputHash "fadb1e65aaa0617f43bcd1db3bb761fc2daa4c8e4c20a21416de288e77bf770f"^^xsd:string;
+    prov:used scr:data_9a83b5242ba6_85299065;
+    prov:startedAtTime "2019-05-28T17:24:11Z"^^xsd:dateTime;
+    prov:generated scr:data_c276b22776c4_ffd27e87;
+.
+
+scr:data_9a83b5242ba6_85299065 a prov:Entity;
+    sc:dataHash "9a83b5242ba6ae988cf1c14380824d11350cc8809191935539f6fbf51c830237"^^xsd:string;
+    rdfs:label "data set from 2019-05-28T17:24:10Z"^^xsd:string;
+    prov:wasAttributedTo scr:container_85299065-414b;
+    prov:generatedAtTime "2019-05-28T17:24:10Z"^^xsd:dateTime;
+.
+
+scr:container_85299065-414b a prov:softwareAgent;
+    sc:containerInstanceId "85299065-414b-4d5e-974b-e2043f3ab1b4"^^xsd:string;
+    rdfs:label "Sentinel Atmospheric Corrections"^^xsd:string;
+    rdfs:comment "This container performs atmospheric corrections for Sentinel data."^^xsd:string;
+    prov:actedOnBehalfOf scr:operator_a130a813440e;
+.
+
+scr:input_76505e3b5be8 a prov:Activity;
+    sc:inputHash "76505e3b5be804ce4d3c8defba5597eaedd83ec14f4f480c34656d803bd3e3bd"^^xsd:string;
+    prov:used scr:data_e2407dfa3192_41f80b87;
+    prov:startedAtTime "2019-05-28T16:10:35Z"^^xsd:dateTime;
+    prov:generated scr:data_9a83b5242ba6_85299065;
+.
+
+scr:data_e2407dfa3192_41f80b87 a prov:Entity;
+    sc:dataHash "e2407dfa3192b05f2add4ee2aa1b127f2f24916370298946b159298770ddc3f6"^^xsd:string;
+    rdfs:label "data set from 2019-05-28T16:10:33Z"^^xsd:string;
+    prov:wasAttributedTo scr:container_41f80b87-9b8d;
+    prov:generatedAtTime "2019-05-28T16:10:33Z"^^xsd:dateTime;
+.
+
+scr:container_41f80b87-9b8d a prov:softwareAgent;
+    sc:containerInstanceId "41f80b87-9b8d-43d6-ba5e-aed6b837dbd6"^^xsd:string;
+    rdfs:label "Sentinel Download"^^xsd:string;
+    rdfs:comment "This container downloads Sentinel data from ftp://galaxy.eodc.eu"^^xsd:string;
+    prov:actedOnBehalfOf scr:operator_a130a813440e;
+.
+
+scr:input_5b697319f458 a prov:Activity;
+    sc:inputHash "5b697319f458166ac6d66ab5a151164ba357de42ce751d07ee9b17a08f9c838a"^^xsd:string;
+    rdfs:label "input data from 2019-05-28T15:00:39Z"^^xsd:string;
+    prov:startedAtTime "2019-05-28T15:00:37Z"^^xsd:dateTime;
+    prov:endedAtTime "2019-05-28T15:00:39Z"^^xsd:dateTime;
+    prov:generated scr:data_e2407dfa3192_41f80b87;
+.
 ```    
-The output above can be visualized online with [PROV-O-Viz](http://provoviz.org/).
+The image below depicts this provenance information. Alternatively, the output can be visualized online with [PROV-O-Viz](http://provoviz.org/).
+<img src="https://github.com/sem-con/sc-sentinel/raw/master/assets/images/provenance.png" width="60" alt="Provenance">
 
 
 ## Improve these Semantic Containers    
