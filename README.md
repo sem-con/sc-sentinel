@@ -128,7 +128,7 @@ This section shows examples on using this Semantic Container processing pipeline
 
 ### Images    
 The Sentinel Semantic Container processing pipeline was used to generate a time-laps video of Bad Aussee ([the center of Austria](https://de.wikipedia.org/wiki/Mittelpunkt_%C3%96sterreichs)) and is available on YouTube: https://youtu.be/N5fz6TRem1w    
-<img src="https://github.com/sem-con/sc-sentinel/raw/master/sample/T33TVN_20180906T101021_TCI_10m.png" height="250" alt="Bad Aussee Satellite Image">    
+<img src="https://github.com/sem-con/sc-sentinel/raw/master/sample/T33TVN_20180906T101021_TCI_10m.png" height="400" alt="Bad Aussee Satellite Image">    
 The source high resolution images are [available here](https://github.com/sem-con/sc-sentinel/tree/master/sample).
 
 ### Provenance Chain    
@@ -216,8 +216,8 @@ scr:input_5b697319f458 a prov:Activity;
     prov:generated scr:data_e2407dfa3192_41f80b87;
 .
 ```    
-The image below depicts this provenance information. Alternatively, the output can be visualized online with [PROV-O-Viz](http://provoviz.org/).
-<img src="https://github.com/sem-con/sc-sentinel/raw/master/assets/images/provenance.png" width="60" alt="Provenance">
+The image below depicts this provenance information. Alternatively, the output can be visualized online with [PROV-O-Viz](http://provoviz.org/).    
+<p align="center"><img src="https://github.com/sem-con/sc-sentinel/raw/master/assets/images/provenance.png" width="600" alt="Provenance"></p>
 
 
 ## Improve these Semantic Containers    
