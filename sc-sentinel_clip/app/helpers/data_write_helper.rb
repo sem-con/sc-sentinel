@@ -3,15 +3,9 @@ module DataWriteHelper
 
     def writeData(content, input, provenance)
         # collect relevant data
-
-puts "INPUT: " + input.to_s
-
-        lat = input.last["lat"] rescue nil
-        long = input.last["long"] rescue nil
+        lat = input["lat"] rescue nil
+        long = input["long"] rescue nil
         dir = content.first["directory"].to_s
-
-puts "LAT: " + lat.to_s
-puts "LONG: " + long.to_s
 
         # list of files to be processed
         file_list = []

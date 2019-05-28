@@ -13,14 +13,31 @@ module DataAccessHelper
 
     def getData(params)
         require 'securerandom'
-
         message = ""
         request_string = ""
         # check if request ID is present
         if params["rid"].nil?
-            # just return all files
-            retVal = [{"type": "files", "directory": "sen2cor"}.to_json]
-            retVal += Store.pluck(:item).map{|x| JSON(x).to_json}
+            request_string = request.query_string
+            if request_string == ""
+                # just return all downloads
+                retVal = [{"type": "files", "directory": "sen2cor"}.to_json]
+                retVal += Store.pluck(:item).map{|x| JSON(x).to_json}
+            else
+                file_query = CGI::parse(request_string)["file"].first.to_s rescue nil
+                if file_query.to_s != ""
+                    # return matching files in Store
+                    retVal = [{"type": "files", "directory": "sen2cor"}.to_json]
+                    Store.pluck(:item).each do |item|
+                        if !(JSON(item)["file"].to_s =~ /#{file_query}/).nil?
+                            retVal += [JSON(item).to_json]
+                        end
+                    end
+                else
+                    # just return all downloads
+                    retVal = [{"type": "files", "directory": "sen2cor"}.to_json]
+                    retVal += Store.pluck(:item).map{|x| JSON(x).to_json}
+                end
+            end
             return retVal
         else
             rid = params["rid"].to_s
@@ -83,4 +100,36 @@ module DataAccessHelper
             end
         end
     end
+
+    def get_provision(params, logstr)
+        retVal_type = container_format
+        timeStart = Time.now.utc
+        retVal_data = getData(params)
+        timeEnd = Time.now.utc
+        content = []
+        case retVal_type.to_s
+        when "JSON"
+            retVal_data.each { |item| content << JSON(item) }
+            content_hash = Digest::SHA256.hexdigest(content.to_json)
+        when "RDF"
+            retVal_data.each { |item| content << item.to_s }
+            content_hash = Digest::SHA256.hexdigest(content.to_s)
+        else
+            content = retVal_data.join("\n")
+            content_hash = Digest::SHA256.hexdigest(content.to_s)
+        end
+        param_str = request.query_string.to_s
+
+        createLog({
+            "type": logstr,
+            "scope": "all (" + retVal_data.count.to_s + " records)",
+            "request": request.remote_ip.to_s}.to_json)
+
+        {
+            "content": content,
+            "usage-policy": container_usage_policy.to_s,
+            "provenance": getProvenance(content_hash, param_str, timeStart, timeEnd)
+        }.stringify_keys
+    end
+
 end

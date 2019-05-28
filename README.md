@@ -84,19 +84,19 @@ Additionally, for the processing `sen2cor` container the target resolution must 
 
 Example local request:   
 ```
-$ curl -s "http://localhost:400/api/data?file=201905" | \ 
+$ curl -s "http://localhost:400/api/data?file=20190504" | \ 
     curl -s -H "Content-Type: application/json" -d @- \
     -X POST "http://localhost:4001/api/data?resolution=60" | jq
 ```   
 Example request for this Semantic Container hosted by ZAMG:    
 ```
-$ curl -s "https://vownyourdata.zamg.ac.at:9700/api/data?file=201905" | \ 
+$ curl -s "https://vownyourdata.zamg.ac.at:9700/api/data?file=20190504" | \ 
     curl -s -H "Content-Type: application/json" -d @- \
     -X POST "https://vownyourdata.zamg.ac.at:9701/api/data?resolution=60" | jq
 ```    
 With the following command a single file can be downloaded locally from a remote Semantic Container:    
 ```
-$ wget https://vownyourdata.zamg.ac.at:9701/api/download/T33UXP_20180705T100031_TCI_60m.jp2
+$ wget https://vownyourdata.zamg.ac.at:9701/api/download/T33TVN_20190504T101031_TCI_60m.jp2
 ```    
 
 ### Clip Image    

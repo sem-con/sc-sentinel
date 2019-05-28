@@ -59,7 +59,9 @@ class ApplicationJob < ActiveJob::Base
                 end
 
                 # write into Store
-                @my_store = Store.new(item: {"file": new_file.to_s, "hash": new_hash.to_s}.to_json, prov_id: prov_id)
+                @my_store = Store.new(
+                    item: {"file": new_file.to_s, "hash": new_hash.to_s}.to_json, 
+                    prov_id: prov_id)
                 @my_store.save
             end
             if error_list.count > 0
