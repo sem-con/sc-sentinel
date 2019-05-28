@@ -27,7 +27,7 @@ module DataAccessHelper
                     retVal = [{"type": "files", "directory": "sentinel_read"}.to_json]
                     Store.pluck(:item).each do |item|
                         if !(JSON(item)["file"].to_s =~ /#{file_query}/).nil?
-                            retVal += JSON(item).to_json
+                            retVal += [JSON(item).to_json]
                         end
                     end
                     retVal
@@ -148,7 +148,6 @@ module DataAccessHelper
         case retVal_type.to_s
         when "JSON"
             retVal_data.each { |item| content << JSON(item) }
-            content = content
             content_hash = Digest::SHA256.hexdigest(content.to_json)
         when "RDF"
             retVal_data.each { |item| content << item.to_s }
@@ -170,5 +169,5 @@ module DataAccessHelper
             "provenance": getProvenance(content_hash, param_str, timeStart, timeEnd)
         }.stringify_keys
     end
-    
+
 end
