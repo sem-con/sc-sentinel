@@ -24,7 +24,7 @@ def download(startdate,enddate,bb):
 	except:
 		pass
 	if not has_cache:
-		r = requests.get(req, verify=False) # dangerous!, remove verify=False when eomex.eodc.edu has again a valid certificate
+		r = requests.get(req)
 		if r.status_code == 200:
 			tj = r.json()
 			print(tj)

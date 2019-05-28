@@ -23,58 +23,64 @@ class ApplicationJob < ActiveJob::Base
                 # get list of files
                 cmd = "python script/eomex_list.py -c " + lat.to_s + " " + long.to_s + " -begin " + start_date.to_s + " -end " + end_date.to_s
                 retVal = `#{cmd}`
-                file_list = JSON.parse(retVal.split("\n").last)["filelist"].map{ |x| x.split("/").last }
-                @ap.update_attributes(file_list: file_list.to_json)
+                file_list = JSON.parse(retVal.split("\n").last)["filelist"] # .map{ |x| x.split("/").last }
 
-                # create list of already downloaded files
+                # create list of files to be downloaded
                 all_files = Store.pluck(:item).map{|x| JSON.parse(x)["file"]}
+                download_list = []
+                download_file_list = []
                 file_list.each do |file_dl|
+                    filename = File.basename(file_dl)
                     # check if filename matches filter
-                    if !(file_dl =~ /#{filter}/).nil?
+                    if !(filename =~ /#{filter}/).nil?
                         # check if file_dl is already downloaded in store
-                        if !all_files.include?(file_dl)
-                            # download file
-                            filename = File.basename(file_dl)
-                            # check if file already exists
-                            if File.file?($DOWNLOAD_DIR + filename)
-                                retVal = `sha256sum " + $DOWNLOAD_DIR + "/#{filename} | head -c 64`
-                                if retVal.to_s != ""
-                                    @my_store = Store.new(item: {"file": my_file, "hash": retVal.to_s}.to_json)
-                                    @my_store.save
-                                else
-                                    delete_file = "rm -f " + filename
-                                    if system(delete_file)
-                                        error_list += [{"filename": my_file, "error": "file already existed but can't create hash value (file deleted)"}]
-                                    end
+                        if !all_files.include?(filename)
+                            download_list += [file_dl[file_dl.index("copernicus.eu/s2a_prd_msil1c")..-1]]
+                            download_file_list += [filename]
+                        end
+                    end
+                end
+                @ap.update_attributes(file_list: download_file_list.to_json)
+
+                download_list.each do |file_dl|
+                    filename = File.basename(file_dl)
+                    if File.file?($DOWNLOAD_DIR + "/" + filename)
+                        retVal = `sha256sum #{$DOWNLOAD_DIR}/#{filename} | head -c 64`
+                        if retVal.to_s != ""
+                            @my_store = Store.new(item: {"file": filename, "hash": retVal.to_s}.to_json)
+                            @my_store.save
+                        else
+                            delete_file = "rm -f " + filename
+                            if system(delete_file)
+                                error_list += [{"filename": filename, "error": "file already existed but can't create hash value (file deleted)"}]
+                            end
+                        end
+                    else
+                        download_file = "wget -P " + $DOWNLOAD_DIR 
+                        download_file += " ftp://galaxy.eodc.eu/" + file_dl
+                        if system(download_file)  # download successfull
+                            # create hash value
+                            retVal = `sha256sum #{$DOWNLOAD_DIR}/#{filename} | head -c 64`
+                            if retVal.to_s != ""
+                                @my_store = Store.new(item: {"file": filename, "hash": retVal.to_s}.to_json)
+                                if !@my_store.save
+                                    error_list += [{"filename": filename, "error": "adding file to list failed"}]
                                 end
                             else
-                                download_file = "wget -P " + $DOWNLOAD_DIR 
-                                download_file += " ftp://galaxy.eodc.eu/" + file_dl[file_dl.index("copernicus.eu/s2a_prd_msil1c")..-1]
-                                if system(download_file)  # download successfull
-                                    # create hash value
-                                    retVal = `sha256sum " + $DOWNLOAD_DIR + "/#{filename} | head -c 64`
-                                    if retVal.to_s != ""
-                                        @my_store = Store.new(item: {"file": my_file, "hash": retVal.to_s}.to_json)
-                                        if !@my_store.save
-                                            error_list += [{"filename": my_file, "error": "adding file to list failed"}]
-                                        end
-                                    else
-                                        delete_file = "rm -f " + filename
-                                        if system(delete_file)
-                                            error_list += [{"filename": my_file, "error": "download successfull but can't create hash value (file deleted)"}]
-                                        else
-                                            error_list += [{"filename": my_file, "error": "download successfull but can't create hash value (file deleted)"}]
-                                        end
-                                    end
+                                delete_file = "rm -f " + filename
+                                if system(delete_file)
+                                    error_list += [{"filename": filename, "error": "download successfull but can't create hash value (file deleted)"}]
                                 else
-                                    # otherwise delete partial downloaded
-                                    delete_file = "rm -f " + filename
-                                    if system(delete_file)
-                                        error_list += [{"filename": my_file, "error": "download failed (partial file deleted)"}]
-                                    else
-                                        error_list += [{"filename": my_file, "error": "download failed"}]
-                                    end
+                                    error_list += [{"filename": filename, "error": "download successfull but can't create hash value (file deleted)"}]
                                 end
+                            end
+                        else
+                            # otherwise delete partial downloaded
+                            delete_file = "rm -f " + filename
+                            if system(delete_file)
+                                error_list += [{"filename": filename, "error": "download failed (partial file deleted)"}]
+                            else
+                                error_list += [{"filename": filename, "error": "download failed"}]
                             end
                         end
                     end

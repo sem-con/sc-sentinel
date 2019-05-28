@@ -116,7 +116,8 @@ module DataAccessHelper
                       "status": -2,
                       "message": "request terminated with error",
                       "request": request_string,
-                      "file-list": file_list
+                      "file-list": file_list,
+                      "error-list": JSON.parse(@ap.error_list)
                   }.to_json]
                 return retVal
             when -3
