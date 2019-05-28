@@ -6,3 +6,5 @@ python script/eomex_download.py -c 47.6089 13.78267 -begin 2018-07-01 -end 2018-
 
 docker run -p 4000:3000 -d --name sentinel_read -v /Users/christoph/tmp:/data semcon/sc-sentinel_read script/init.sh "$(< test/init.trig)"
 curl -s "http://localhost:4000/api/data/plain?lat=48.21&long=16.37&begin=2019-04-01&end=2019-04-20" | jq
+
+$ curl -s "http://localhost:4000/api/data" | jq '.provision.provenance' | ruby -e "puts $(</dev/stdin)"

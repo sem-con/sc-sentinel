@@ -26,18 +26,13 @@
     # generic - dublin core
     dc:title "Sentinel Download" ;
     dc:description """
-        This container downloads Sentinel data from https://eomex.eodc.eu
+        This container downloads Sentinel data from ftp://galaxy.eodc.eu
       """ ;
     dc:creator [
       rdf:type foaf:Person ;
       foaf:name "Christoph Fabianek" ;
       foaf:mbox <mailto:christoph@ownyourdata.eu> ;
     ] ;
-#     dc:contributor [
-#       rdf:type foaf:Person ;
-#       foaf:name "John Doe" ;
-#       foaf:mbox <mailto:email@domain.org> ;
-#     ];
     :hasDataConfiguration :DataConfigurationInstance .
     # :hasDataLayer scr:LayerSemantic ;   # NON-EDITABLE - assigned
 
@@ -50,6 +45,8 @@
     :hasTag "" ;
     # data format - inspired from void
     :hasNativeSyntax <http://w3id.org/semcon/ns/ontology#JSON> ;
+    :hasDataLocationDescription "Satellite data provided by EODC";
+    :hasDataLocation <ftp://galaxy.eodc.eu/>;
     # example data in plain string
     :hasExampleData """
       

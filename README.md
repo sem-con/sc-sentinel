@@ -68,12 +68,12 @@ $ curl -s "http://localhost:4000/api/data/plain?rid=83d2b9ea-a684-4544-8ae2-1db9
 
 Example request for this Semantic Container hosted by ZAMG:    
 ```
-$ curl -s "https://vownyourdata.zamg.ac.at:9700/api/data/plain?lat=47.61&long=13.78&start=2019-05-01&end=2019-05-10&filter=UW" | jq
+$ curl -s "https://vownyourdata.zamg.ac.at:9700/api/data/plain?lat=47.61&long=13.78&start=2019-05-01&end=2019-05-10&filter=TVN" | jq
 ```    
 
 With the following command a single file can be downloaded from a remote Semantic Container:    
 ```
-$ wget https://vownyourdata.zamg.ac.at:9700/api/download/S2A_MSIL1C_20190418T095031_N0207_R079_T33UXP_20190418T115043.zip
+$ wget https://vownyourdata.zamg.ac.at:9700/api/download/S2A_MSIL1C_20190501T100031_N0207_R122_T33TVN_20190501T110719.zip
 ```    
 
 ### Perform Atmospheric Correction    
@@ -135,7 +135,7 @@ The source high resolution images are [available here](https://github.com/sem-co
 Semantic Container automatically generate a provenance chain along the process pipeline when an image is created from the Sentinel source data, processed by the Sentinel-2 toolbox, and finally clipped to the relevant area. The following command generates the provenance information using the [PROV Ontology](https://www.w3.org/TR/prov-o/):
 ```
 $ curl -s "https://vownyourdata.zamg.ac.at:9702/api/data?file=201905" | \ 
-      jq .provision | jq .provenance | ruby -e "puts $(</dev/stdin)"
+      jq '.provision.provenance' | ruby -e "puts $(</dev/stdin)"
 ```    
 The output above can be visualized online with [PROV-O-Viz](http://provoviz.org/).
 

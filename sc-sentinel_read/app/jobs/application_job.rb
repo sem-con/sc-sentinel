@@ -43,12 +43,23 @@ class ApplicationJob < ActiveJob::Base
                 @ap.update_attributes(file_list: download_file_list.to_json)
 
                 download_list.each do |file_dl|
+                    start_time = Time.now
                     filename = File.basename(file_dl)
                     if File.file?($DOWNLOAD_DIR + "/" + filename)
                         retVal = `sha256sum #{$DOWNLOAD_DIR}/#{filename} | head -c 64`
                         if retVal.to_s != ""
-                            @my_store = Store.new(item: {"file": filename, "hash": retVal.to_s}.to_json)
-                            @my_store.save
+                            @my_prov = Provenance.new(
+                                startTime: start_time,
+                                endTime: Time.now,
+                                input_hash: retVal,
+                                prov: "")
+                            @my_prov.save
+                            @my_store = Store.new(
+                                item: {"file": filename, "hash": retVal.to_s}.to_json, 
+                                prov_id: @my_prov.id)
+                            if !@my_store.save
+                                error_list += [{"filename": filename, "error": "adding file to list failed"}]
+                            end
                         else
                             delete_file = "rm -f " + filename
                             if system(delete_file)
@@ -62,7 +73,15 @@ class ApplicationJob < ActiveJob::Base
                             # create hash value
                             retVal = `sha256sum #{$DOWNLOAD_DIR}/#{filename} | head -c 64`
                             if retVal.to_s != ""
-                                @my_store = Store.new(item: {"file": filename, "hash": retVal.to_s}.to_json)
+                                @my_prov = Provenance.new(
+                                    startTime: start_time,
+                                    endTime: Time.now,
+                                    input_hash: retVal,
+                                    prov: "")
+                                @my_prov.save
+                                @my_store = Store.new(
+                                    item: {"file": filename, "hash": retVal.to_s}.to_json, 
+                                    prov_id: @my_prov.id)
                                 if !@my_store.save
                                     error_list += [{"filename": filename, "error": "adding file to list failed"}]
                                 end
