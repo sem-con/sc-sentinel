@@ -33,19 +33,19 @@ $ docker run -p 4002:3000 -d --name sentinel_clip \
 The first step is to download the raw data as made available from the Sentinel-2 satellites. Trigger a download through the following options:    
 * `lat`: point of interest lattitude (e.g., 47.61)    
 * `long`: point of interest longitude (e.g., 13.78)    
-* `start`: begin date of chosen time frame (e.g., 2019-05-01)    
-* `end`: end date of chosen time frame (e.g., 2019-05-10)    
-* `filter`: regular expression that the download file must match; leave empty to omit the filter (e.g., UW); for each date there are 2 files available and this options allows to ommit one type    
+* `start`: begin date of chosen time frame (e.g., 2019-04-20)    
+* `end`: end date of chosen time frame (e.g., 2019-04-30)    
+* `filter`: regular expression that the download file must match; leave empty to omit the filter (e.g., TVN); for each date there are 2 files available and this options allows to ommit one type    
 
 Example local request:    
 ```
-$ curl -s "http://localhost:4000/api/data/plain?lat=47.61&long=13.78&start=2019-05-01&end=2019-05-10&filter=UW" | jq
+$ curl -s "http://localhost:4000/api/data/plain?lat=47.61&long=13.78&start=2019-04-20&end=2019-04-30&filter=TVN" | jq
 [
   {
     "rid": "83d2b9ea-a684-4544-8ae2-1db90f74c227",
     "status": 0,
     "message": "request created",
-    "request": "lat=47.61&long=13.78&start=2019-05-01&end=2019-05-10&filter=TVN"
+    "request": "lat=47.61&long=13.78&start=2019-04-20&end=2019-04-30&filter=TVN"
   }
 ]
 ```   
@@ -57,10 +57,9 @@ $ curl -s "http://localhost:4000/api/data/plain?rid=83d2b9ea-a684-4544-8ae2-1db9
     "rid": "83d2b9ea-a684-4544-8ae2-1db90f74c227",
     "status": 1,
     "message": "request in progress",
-    "request": "lat=47.61&long=13.78&start=2019-05-01&end=2019-05-10&filter=TVN",
+    "request": "lat=47.61&long=13.78&start=2019-04-20&end=2019-04-30&filter=TVN",
     "file-list": [
-      "S2A_MSIL1C_20190501T100031_N0207_R122_T33TVN_20190501T110719.zip",
-      "S2A_MSIL1C_20190504T101031_N0207_R022_T33TVN_20190504T122526.zip"
+      "S2A_MSIL1C_20190424T101031_N0207_R022_T33TVN_20190424T153347.zip"
     ]
   }
 ]
@@ -68,12 +67,12 @@ $ curl -s "http://localhost:4000/api/data/plain?rid=83d2b9ea-a684-4544-8ae2-1db9
 
 Example request for this Semantic Container hosted by ZAMG:    
 ```
-$ curl -s "https://vownyourdata.zamg.ac.at:9700/api/data/plain?lat=47.61&long=13.78&start=2019-05-01&end=2019-05-10&filter=TVN" | jq
+$ curl -s "https://vownyourdata.zamg.ac.at:9700/api/data/plain?lat=47.61&long=13.78&start=2019-04-20&end=2019-04-30&filter=TVN" | jq
 ```    
 
 With the following command a single file can be downloaded from a remote Semantic Container:    
 ```
-$ wget https://vownyourdata.zamg.ac.at:9700/api/download/S2A_MSIL1C_20190501T100031_N0207_R122_T33TVN_20190501T110719.zip
+$ wget https://vownyourdata.zamg.ac.at:9700/api/download/S2A_MSIL1C_20190424T101031_N0207_R022_T33TVN_20190424T153347.zip
 ```    
 
 ### Perform Atmospheric Correction    
@@ -84,19 +83,19 @@ Additionally, for the processing `sen2cor` container the target resolution must 
 
 Example local request:   
 ```
-$ curl -s "http://localhost:400/api/data?file=20190504" | \ 
+$ curl -s "http://localhost:400/api/data?file=20190424" | \ 
     curl -s -H "Content-Type: application/json" -d @- \
     -X POST "http://localhost:4001/api/data?resolution=60" | jq
 ```   
 Example request for this Semantic Container hosted by ZAMG:    
 ```
-$ curl -s "https://vownyourdata.zamg.ac.at:9700/api/data?file=20190504" | \ 
+$ curl -s "https://vownyourdata.zamg.ac.at:9700/api/data?file=20190424" | \ 
     curl -s -H "Content-Type: application/json" -d @- \
     -X POST "https://vownyourdata.zamg.ac.at:9701/api/data?resolution=60" | jq
 ```    
 With the following command a single file can be downloaded locally from a remote Semantic Container:    
 ```
-$ wget https://vownyourdata.zamg.ac.at:9701/api/download/T33TVN_20190504T101031_TCI_60m.jp2
+$ wget https://vownyourdata.zamg.ac.at:9701/api/download/T33TVN_20190424T101031_TCI_60m.jp2
 ```    
 
 ### Clip Image    
@@ -108,19 +107,19 @@ Additionally, for the processing `sentinel_clip` container the following options
 
 Example local request:   
 ```
-$ curl -s "http://localhost:4001/api/data?file=201905" | \ 
+$ curl -s "http://localhost:4001/api/data?file=201904" | \ 
     curl -s -H "Content-Type: application/json" -d @- \
     -X POST "http://localhost:4002/api/data?lat=47.61&long=13.78" | jq
 ```   
 Example request for this Semantic Container hosted by ZAMG:    
 ```
-$ curl -s "https://vownyourdata.zamg.ac.at:9701/api/data?file=201905" | \ 
+$ curl -s "https://vownyourdata.zamg.ac.at:9701/api/data?file=201904" | \ 
     curl -s -H "Content-Type: application/json" -d @- \
     -X POST "https://vownyourdata.zamg.ac.at:9702/api/data?lat=47.61&long=13.78" | jq
 ```    
 With the following command a single file can be downloaded locally from a remote Semantic Container:    
 ```
-$ wget https://vownyourdata.zamg.ac.at:9702/api/download/T33UWP_20190501T100031_TCI_60m.png
+$ wget https://vownyourdata.zamg.ac.at:9702/api/download/T33TVN_20190424T101031_TCI_60m.png
 ```    
 
 ## Examples    
@@ -134,7 +133,7 @@ The source high resolution images are [available here](https://github.com/sem-co
 ### Provenance Chain    
 Semantic Container automatically generate a provenance chain along the process pipeline when an image is created from the Sentinel source data, processed by the Sentinel-2 toolbox, and finally clipped to the relevant area. The following command generates the provenance information based on the [PROV Ontology](https://www.w3.org/TR/prov-o/):
 ```
-$ curl -s "https://vownyourdata.zamg.ac.at:9702/api/data?file=201905" | \ 
+$ curl -s "https://vownyourdata.zamg.ac.at:9702/api/data?file=20190424" | \ 
       jq '.provision.provenance' | ruby -e "puts $(</dev/stdin)"
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .

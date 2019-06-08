@@ -71,17 +71,21 @@ class ApplicationJob < ActiveJob::Base
                     next
                 end
 
-                # create hash of TCI
-                cmd = "sha256sum /data/sen2cor/" + new_file.to_s + " | head -c 64"
-                new_hash = `#{cmd}`
-                if new_hash.to_s == ""
-                    error_list += [{"file": new_file.to_s, "error": "failed to create hash from TCI"}]
-                    next
-                end
+                # check if file exists
+                all_files = Store.pluck(:item).map{|x| JSON.parse(x)["file"]}
+                if !all_files.include?(new_file)
+                    # create hash of TCI
+                    cmd = "sha256sum /data/sen2cor/" + new_file.to_s + " | head -c 64"
+                    new_hash = `#{cmd}`
+                    if new_hash.to_s == ""
+                        error_list += [{"file": new_file.to_s, "error": "failed to create hash from TCI"}]
+                        next
+                    end
 
-                # write into Store
-                @my_store = Store.new(item: {"file": new_file.to_s, "hash": new_hash.to_s}.to_json, prov_id: prov_id)
-                @my_store.save
+                    # write into Store
+                    @my_store = Store.new(item: {"file": new_file.to_s, "hash": new_hash.to_s}.to_json, prov_id: prov_id)
+                    @my_store.save
+                end
             end
             if error_list.count > 0
                 @ap.update_attributes(status: -2, error_list: error_list.to_json)

@@ -3,7 +3,7 @@ module DataWriteHelper
 
     def writeData(content, input, provenance)
         # collect relevant data
-        res = input.last["resolution"].to_i rescue 60
+        res = input["resolution"].to_i rescue 60
         dir = content.first["directory"].to_s
 
         # list of files to be processed
